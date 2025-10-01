@@ -2,11 +2,14 @@
 //
 
 #include "svgMotion.h"
+#include "core\utility\dataStructures\Tree.h"
 
-using namespace std;
+
 
 int main()
 {
-	cout << "Hello CMake." << endl;
+	
+	
+	
 	return 0;
 }
