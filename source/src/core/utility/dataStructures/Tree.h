@@ -18,7 +18,7 @@ public:
 
 		Tkey key;
 		std::shared_ptr<TreeNode> parent;
-		std::vector<std::weak_ptr<TreeNode>> children;
+		std::vector<std::shared_ptr<TreeNode>> children;
 
 		TreeNode(Tkey key, std::shared_ptr<TreeNode> parent = nullptr) {
 			this->key = key;
@@ -43,7 +43,7 @@ public:
 		}
 
 		Tkey getParentKey() {
-			return parent->key;
+				return parent->key;
 		}
 	};
 	// Not using unique_ptr because we are inheriting from enable_shared_from_this
