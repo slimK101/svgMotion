@@ -25,25 +25,25 @@ struct Token {
 };
 
 class  LexicalAnalyzer {
-	public:
-		char* bufferStart;
-		int bufferSize = 30;
-		std::vector<Token> tokens;
+public:
+	char* bufferStart;
+	int bufferSize = 41;
+	std::vector<Token> tokens;
 
 
-		LexicalAnalyzer();
-		void initBuffer(std::string& file);
-		void parseInput();
+	LexicalAnalyzer();
+	void initBuffer(std::string& file);
+	void parseInput();
 
 
-		void printBuffer();
-		std::vector<Token>* getTokens() {
-			return &tokens;
-		}
+	void printBuffer();
+	std::vector<Token>* getTokens() {
+		return &tokens;
+	}
 
 
-	
-		
+
+
 };
 
 

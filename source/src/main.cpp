@@ -10,7 +10,7 @@
 
 int main()
 {
-	std::string file = "<svg id ='hello'><ellipse></ellipse></svg>";
+	std::string file = "<svg id =\"hello\"><elipse>Hello World</e>>ipse></svg>";
 	LexicalAnalyzer analyzer = LexicalAnalyzer();
 	analyzer.initBuffer(file);
 	analyzer.printBuffer();
