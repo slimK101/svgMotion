@@ -12,7 +12,7 @@ endif()
 project ("source")
 
 # Add source to this project's executable.
-add_executable (svgMotion "src/main.cpp" "src/svgMotion.h" "src/core/utility/DomParser.cpp" "src/core/utility/LexicalAnalyzer.h" "src/core/utility/LexicalAnalyzer.cpp")
+add_executable (svgMotion "src/main.cpp" "src/svgMotion.h" "src/core/utility/DomParser.cpp" "src/core/utility/LexicalAnalyzer.h" "src/core/utility/LexicalAnalyzer.cpp"  )
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET svgMotion PROPERTY CXX_STANDARD 20)

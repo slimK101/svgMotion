@@ -4,15 +4,42 @@
 
 LexicalAnalyzer::LexicalAnalyzer() = default;
 
-void LexicalAnalyzer::initBuffer(std::string& file)
+void LexicalAnalyzer::loadInFile(std::string filePath)
 {
-	// allocate the buffer on the heap
-	this->bufferStart = new char[this->bufferSize];
-	// copy the string characters to the buffer
-	int i = 0;
-	while (i < file.size() && i < this->bufferSize) {
-		*(this->bufferStart + i) = file[i];
-		i++;
+	inFile.open(filePath, std::ios::in | std::ios::binary | std::ios::ate);
+
+	if (inFile.is_open()) { // TODO : Add error handling
+		inFile.seekg(0, std::ios::end);
+		fileSize = inFile.tellg();
+		this->bufferStart = new char[this->bufferSize];
+		//Getting the buffer count before segmenting the file
+		//TODO : assigning automatic buffer size , have to run benchmarks first
+		std::streamsize remainder = fileSize % this->bufferSize;
+		bufferCount = remainder > 0 ? fileSize / this->bufferSize + 1 : fileSize / this->bufferSize;
+		std::streamsize  readSize;
+		int i = 0;
+		while (i < bufferCount) {
+			
+			if (i == bufferCount - 1 && remainder > 0) {
+				readSize = remainder;
+			}
+			else {
+				readSize = this->bufferSize;
+			}
+			
+			inFile.seekg(i * this->bufferSize);
+			inFile.read(this->bufferStart, readSize);
+			std::streamsize bytesRead = inFile.gcount();
+			this->parseInput(bytesRead);
+
+			i++;
+		}
+
+		inFile.close();
+
+		//Delete the buffer after parsing complete
+		delete[] this->bufferStart;
+
 	}
 }
 
@@ -37,14 +64,14 @@ std::ostream& operator<<(std::ostream& os, TokenType t) {
 	}
 }
 
-void LexicalAnalyzer::parseInput() {
+void LexicalAnalyzer::parseInput(std::streamsize bytesread) {
 
 	std::string acc = "";
 	// To indicate whether or not were inside a tag 
 	bool isInTag = false;
 	int i = 0;
 
-	while (i < this->bufferSize) {
+	while (i < bytesread) {
 
 		char& p = *(this->bufferStart + i);
 		if (isalpha(p) == 0 && p != ' ') { // Character but not a space

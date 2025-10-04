@@ -4,6 +4,7 @@
 #include<iostream>
 #include<vector>
 #include <ctype.h>
+#include <fstream>
 
 enum class TokenType {
 	OPENTAG,		//<
@@ -26,14 +27,21 @@ struct Token {
 
 class  LexicalAnalyzer {
 public:
+	std::ifstream inFile;
+	std::string str;
+	std::string fileContents;
 	char* bufferStart;
-	int bufferSize = 41;
+	std::streamsize bufferSize = 600;
+	int bufferCount;
+	std::streamsize fileSize;
 	std::vector<Token> tokens;
+	
+
 
 
 	LexicalAnalyzer();
-	void initBuffer(std::string& file);
-	void parseInput();
+	void loadInFile(std::string filePath);
+	void parseInput(std::streamsize bytesread);
 
 
 	void printBuffer();
