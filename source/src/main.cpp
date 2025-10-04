@@ -7,14 +7,16 @@
 #include "core\utility\LexicalAnalyzer.h"
 
 
+
 int main()
 {
-	std::string file = "<svg><ellipse></ellipse></svg>";
-	LexicalAnalyzer analyzer = LexicalAnalyzer(file);
-	analyzer.parseInput(file);
-	for (auto child : (*analyzer.getTokens())) {
-		std::cout << child.value << std::endl;
-
+	std::string file = "<svg id ='hello'><ellipse></ellipse></svg>";
+	LexicalAnalyzer analyzer = LexicalAnalyzer();
+	analyzer.initBuffer(file);
+	analyzer.printBuffer();
+	analyzer.parseInput();
+	for (auto token : analyzer.tokens) {
+		std::cout << token.value << "\n";
 	}
 	
 	

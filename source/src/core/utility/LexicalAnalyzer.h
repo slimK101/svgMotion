@@ -3,15 +3,19 @@
 
 #include<iostream>
 #include<vector>
+#include <ctype.h>
+
 enum class TokenType {
-	OPENTAG,
-	CLOSETAG, 
-	EQUALS,  
-	SLASH, 
-	QUOTE,
-	TEXT, 
+	OPENTAG,		//<
+	CLOSETAG,	    // >
+	EQUALS,			// = 
+	SLASH,			// /
+	QUOTE,			// "
+	TEXT,			// Aa-Zz
 
 };
+
+std::ostream& operator<<(std::ostream& os, TokenType t);
 
 struct Token {
 	TokenType type;
@@ -21,18 +25,24 @@ struct Token {
 };
 
 class  LexicalAnalyzer {
-	private:
-		std::string input;
+	public:
+		char* bufferStart;
+		int bufferSize = 30;
 		std::vector<Token> tokens;
 
-	public:
-		LexicalAnalyzer(std::string input);
-		void parseInput(std::string input);
 
+		LexicalAnalyzer();
+		void initBuffer(std::string& file);
+		void parseInput();
+
+
+		void printBuffer();
 		std::vector<Token>* getTokens() {
 			return &tokens;
 		}
 
+
+	
 		
 };
 
