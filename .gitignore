@@ -13,7 +13,7 @@
 CppProperties.json
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
-
+testfiles
 # Mono auto generated files
 mono_crash.*
 

@@ -24,12 +24,14 @@ int main()
     auto t1 = high_resolution_clock::now();
 	
 	LexicalAnalyzer analyzer = LexicalAnalyzer();
-	analyzer.loadInFile("C:\\Users\\slima\\source\\repos\\svgMotion\\source\\src\\core\\test.svg");
-
-	for (auto token : analyzer.tokens) {
-		std::cout << token.value << "\n";
-	}
-	
+	 analyzer.loadInFile("C:\\Users\\slima\\source\\repos\\svgMotion\\source\\src\\core\\test1.svg");
+    
+     for (auto child : analyzer.tokens) {
+         std::cout << "[" << child.value << "]" << "\n";
+    }
+    
+    
+    
   
     auto t2 = high_resolution_clock::now();
 

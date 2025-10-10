@@ -5,6 +5,10 @@
 #include<vector>
 #include <ctype.h>
 #include <fstream>
+#include <iterator>
+#include <string_view>
+#include <stack>
+#include "dataStructures\Tree.h"
 
 enum class TokenType {
 	OPENTAG,		//<
@@ -16,32 +20,34 @@ enum class TokenType {
 
 };
 
-std::ostream& operator<<(std::ostream& os, TokenType t);
 
 struct Token {
 	TokenType type;
-	std::string value;
+	std::string_view value;
 
-	Token(TokenType t, std::string value) : type(t), value(value) {}
+	Token(TokenType t, std::string_view value) : type(t), value(value) {}
 };
-
+std::ostream& operator<<(std::ostream& os, TokenType t);
 class  LexicalAnalyzer {
 public:
-	std::ifstream inFile;
-	std::string str;
-	std::string fileContents;
-	char* bufferStart;
-	std::streamsize bufferSize = 600;
-	int bufferCount;
-	std::streamsize fileSize;
+
+	std::vector<char>* stringBuffer;
+	std::vector<char> buffer;
+	std::vector<char>* bufferStart;
+	Tree<Token> tokenTree;
+	std::stack<Token> tokenStack;
 	std::vector<Token> tokens;
+	std::streamsize fileSize;
+	std::ifstream inFile;
+	
+	
 	
 
 
 
 	LexicalAnalyzer();
 	void loadInFile(std::string filePath);
-	void parseInput(std::streamsize bytesread);
+	void parseInput();
 
 
 	void printBuffer();

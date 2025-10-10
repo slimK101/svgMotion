@@ -8,47 +8,21 @@ void LexicalAnalyzer::loadInFile(std::string filePath)
 {
 	inFile.open(filePath, std::ios::in | std::ios::binary | std::ios::ate);
 
-	if (inFile.is_open()) { // TODO : Add error handling
-		inFile.seekg(0, std::ios::end);
+
+	// TODO : Add error handling
+	if (inFile.is_open()) {
 		fileSize = inFile.tellg();
-		this->bufferStart = new char[this->bufferSize];
-		//Getting the buffer count before segmenting the file
-		//TODO : assigning automatic buffer size , have to run benchmarks first
-		std::streamsize remainder = fileSize % this->bufferSize;
-		bufferCount = remainder > 0 ? fileSize / this->bufferSize + 1 : fileSize / this->bufferSize;
-		std::streamsize  readSize;
-		int i = 0;
-		while (i < bufferCount) {
-			
-			if (i == bufferCount - 1 && remainder > 0) {
-				readSize = remainder;
-			}
-			else {
-				readSize = this->bufferSize;
-			}
-			
-			inFile.seekg(i * this->bufferSize);
-			inFile.read(this->bufferStart, readSize);
-			std::streamsize bytesRead = inFile.gcount();
-			this->parseInput(bytesRead);
-
-			i++;
-		}
-
+		inFile.seekg(0, std::ios::beg);
+		buffer = std::vector<char>(fileSize);
+		if (inFile.read(buffer.data(), fileSize)) this->bufferStart = nullptr;
+		bufferStart = &buffer;
+		parseInput();
 		inFile.close();
-
-		//Delete the buffer after parsing complete
-		delete[] this->bufferStart;
-
 	}
-}
 
-void LexicalAnalyzer::printBuffer()
-{
-	for (int i = 0; i < this->bufferSize; i++) {
-		std::cout << *(this->bufferStart + i);
-	}
-	std::cout << "\n";
+
+
+
 }
 
 
@@ -64,57 +38,91 @@ std::ostream& operator<<(std::ostream& os, TokenType t) {
 	}
 }
 
-void LexicalAnalyzer::parseInput(std::streamsize bytesread) {
+void LexicalAnalyzer::parseInput() {
 
 	std::string acc = "";
+	stringBuffer = new std::vector<char>();
+	char* stringArray = new char[fileSize];
+	char* stringStart = stringArray;
+	char* stringEnd = stringStart;
+	bool catchElement = false;
+	bool catchAttribute = false;
+	int arrIdx = 0;
+
+
 	// To indicate whether or not were inside a tag 
 	bool isInTag = false;
 	int i = 0;
 
-	while (i < bytesread) {
+	while (i < fileSize) {
+		char p = (*bufferStart)[i];
 
-		char& p = *(this->bufferStart + i);
+		std::string_view stringView(bufferStart->data() + i, 1);
 		if (isalpha(p) == 0 && p != ' ') { // Character but not a space
 
-			if (acc != "") {
-				this->tokens.push_back(Token(TokenType::TEXT, acc));
+			if (stringStart != stringEnd) {
+				// We consume the word
+				this->tokens.push_back(Token(TokenType::TEXT, std::string_view(stringStart, stringEnd - stringStart)));
+				if (catchElement) {
+					tokenStack.push(tokens.back());
+					catchElement = false;
+					catchAttribute = true;
+					
+				}
 
-				acc = "";
+				if (catchAttribute) {
+					
+					std::cout << "This element should be a child attribute to " << tokens.back().value;
+					tokenStack.push(tokens.back());
+					std::cout << " // " << tokens.back().value << "\n";
+				}
+				stringStart = stringEnd;
+
 			}
 
-			if (p == '<') {
-				this->tokens.push_back(Token(TokenType::OPENTAG, std::string() + p));
+			switch (p)
+			{
+			default:
+				break;
+			case '<':
+				this->tokens.emplace_back(Token(TokenType::OPENTAG, stringView));
 				isInTag = true;
-			}
-
-			if (p == '>') {
-				this->tokens.push_back(Token(TokenType::CLOSETAG, std::string() + p));
+				catchElement = true;
+				break;
+			case '>':
+				this->tokens.emplace_back(Token(TokenType::CLOSETAG, stringView));
 				isInTag = false;
-			}
+				break;
+			case '/':
+				this->tokens.emplace_back(Token(TokenType::SLASH, stringView));
 
-			if (p == '/') {
-				this->tokens.push_back(Token(TokenType::SLASH, std::string() + p));
-			}
+				break;
+			case '=':
+				this->tokens.emplace_back(Token(TokenType::EQUALS, stringView));
 
-			if (p == '=') {
-				this->tokens.push_back(Token(TokenType::EQUALS, std::string() + p));
-			}
+				break;
+			case '"':
+				this->tokens.emplace_back(Token(TokenType::QUOTE, stringView));
 
-			if (p == '"') {
-				this->tokens.push_back(Token(TokenType::QUOTE, std::string() + p));
+				break;
 			}
 		}
 		else if (p == ' ' && isInTag) { // Space but should be parsed 
-			if (acc != "") {
-				this->tokens.push_back(Token(TokenType::TEXT, acc));
-
-				acc = "";
+			if (stringStart != stringEnd) {
+				this->tokens.push_back(Token(TokenType::TEXT, std::string_view(stringStart, stringEnd - stringStart)));
+				if (catchElement) {
+					tokenStack.push(tokens.back());
+				}
+				stringStart = stringEnd;
 			}
 
 		}
 		else {
 			//it's an alphabet
-			acc += p;
+			stringArray[arrIdx] = p;
+			arrIdx++;
+			stringEnd = stringArray + arrIdx;
+
 		}
 
 
@@ -123,10 +131,9 @@ void LexicalAnalyzer::parseInput(std::streamsize bytesread) {
 		i++;
 	}
 	//Verify last token 
-	if (acc != "") {
-		this->tokens.push_back(Token(TokenType::TEXT, acc));
-
-		acc = "";
+	if (stringStart != stringEnd) {
+		this->tokens.push_back(Token(TokenType::TEXT, std::string_view(stringStart, stringEnd - stringStart)));
+		stringStart = stringEnd;
 	}
 
 
